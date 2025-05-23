@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">Infographic: China's Economic Currents - A Household Perspective</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; 
+            color: #334155; 
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .dark body {
+            background-color: #1e293b; 
+            color: #e2e8f0; 
+        }
+        .dark .stat-card, .dark .modal-content {
+            background-color: #334155; 
+            color: #e2e8f0; 
+        }
+        .dark .content-text, .dark .sub-title, .dark .section-title, .dark .text-slate-600, .dark .text-slate-500, .dark .text-slate-700, .dark .text-slate-800, .dark #modalTitleText {
+            color: #cbd5e1; 
+        }
+         .dark .stat-number { color: #FF8C00; } 
+         .dark .section-title { color: #5eead4; } 
+         .dark .sub-title { color: #5eead4; } 
+         .dark .flowchart-step { background-color: #3b82f6; color:white; } 
+         .dark .flowchart-arrow { color: #5eead4; }
+         /* .dark .gemini-button is handled by base .gemini-button and specific dark overrides below if needed */
+         .dark .learn-more-button { background-color: #FFD700; color: #422000;}
+         .dark .learn-more-button:hover { background-color: #e6c200; }
+         .dark .border-slate-300 { border-color: #475569; } 
+         .dark select { background-color: #334155; color: #e2e8f0; border-color: #475569;}
+         .dark .bg-pink-50 { background-color: #500724; } 
+         .dark .border-pink-200 { border-color: #831843; } 
+         .dark .modal-close { color: #9ca3af; }
+         .dark .modal-close:hover { color: #e2e8f0; }
+         .dark .bg-teal-50 { background-color: #042f2e; } 
+         .dark .border-teal-200 { border-color: #0d9488; }
+
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 350px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+                max-height: 400px;
+            }
+        }
+        .stat-card {
+            border-radius: 0.5rem; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); 
+            padding: 1.5rem; 
+            margin-bottom: 1.5rem; 
+        }
+        .stat-number {
+            font-size: 3rem; 
+            font-weight: 700; 
+        }
+        .section-title {
+            font-size: 1.875rem; 
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .sub-title {
+            font-size: 1.25rem; 
+            font-weight: 600;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .content-text {
+            font-size: 1rem; 
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        .flowchart-step {
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem; 
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .flowchart-arrow {
+            text-align: center;
+            font-size: 1.5rem; 
+            margin: 0.25rem 0;
+        }
+        .gemini-button {
+            background-color: #FF69B4; /* Energetic Pink */
+            color: #3A001E; /* Dark Magenta for good contrast on pink */
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem; 
+            font-weight: 600;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
+        .gemini-button:hover {
+            background-color: #db4c9c; /* Darker Pink */
+            color: #3A001E; /* Text color remains the same */
+        }
+        .dark .gemini-button {
+            /* Ensures consistency, though base style is now good for dark too */
+            background-color: #FF69B4;
+            color: #3A001E; 
+        }
+        .dark .gemini-button:hover {
+            background-color: #db4c9c;
+            color: #3A001E;
+        }
+
+        .learn-more-button {
+            background-color: #FFD700; /* Energetic Yellow */
+            color: #422000; /* Dark brown for contrast */
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem; 
+            font-size: 0.75rem; 
+            font-weight: 600;
+            margin-left: 0.5rem;
+            cursor: pointer;
+            border: none;
+        }
+        .learn-more-button:hover {
+            background-color: #e6c200; /* Darker Yellow */
+        }
+
+        .modal {
+            display: none; 
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+        }
+        .modal-content {
+            margin: 10% auto;
+            padding: 25px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 0.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .modal-close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3; 
+            border-top: 4px solid #FF69B4; /* Pink */
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 5px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .control-button {
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background-color 0.2s, box-shadow 0.2s;
+            border: 1px solid transparent;
+        }
+        .control-button.active {
+            box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06);
+        }
+        .control-button { background-color: #e2e8f0; color: #334155; border-color: #cbd5e1;}
+        .control-button.active { background-color: #cbd5e1; }
+
+        .dark .control-button { background-color: #475569; color: #e2e8f0; border-color: #64748b;}
+        .dark .control-button.active { background-color: #64748b; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+    <div class="fixed top-4 right-4 z-50 flex space-x-2">
+        <div>
+            <button id="translateButton" class="control-button">文/En</button>
+        </div>
+        <div class="flex rounded-md shadow-sm">
+            <button id="themeLight" class="control-button rounded-l-md" title="Light Mode">☀️</button>
+            <button id="themeDark" class="control-button" title="Dark Mode">🌙</button>
+            <button id="themeSystem" class="control-button rounded-r-md" title="System Default">💻</button>
+        </div>
+    </div>
+
+    <div class="container mx-auto p-4 md:p-8 pt-16">
+
+        <header class="text-center mb-12">
+            <h1 id="mainHeader" class="text-4xl md:text-5xl font-bold" style="color: #FF8C00;">Navigating China's Economic Currents</h1>
+            <p id="subHeader" class="text-xl text-slate-600 mt-2">A Household Perspective on Financial Trends & Market Shifts</p>
+        </header>
+
+        <section class="mb-12">
+            <h2 id="householdSqueezeTitle" class="section-title">The Household Squeeze</h2>
+            <div class="stat-card md:col-span-2">
+                <p id="householdSqueezePara1" class="content-text">Recent analyses, including insights from the "b站铁锤老中经济.txt" source, paint a picture of significant financial pressure on Chinese households. Many are actively trying to reduce their debt ("deleveraging") amidst economic uncertainties and a shifting property market. This cautious behavior is a key theme shaping current economic trends.</p>
+                <div class="text-center">
+                    <p id="householdDebtToIncomeTitle" class="sub-title">Perceived Household Debt-to-Income Ratio:</p>
+                    <p class="stat-number">144%</p>
+                    <p id="householdDebtToIncomePara" class="content-text mt-2">This striking figure, highlighted in the source material, suggests that for every 100 yuan earned, 144 yuan are owed, pushing households into an "asset-liability sheet repair mode." While the exact methodology for this specific ratio needs context, it reflects a strong sentiment of a heavy debt burden.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <h2 id="indicatorsTitle" class="section-title">Economic Indicators & Household Reactions</h2>
+            <p id="indicatorsIntro" class="content-text text-center mb-6">Several key economic indicators reflect the current climate and are influencing household financial decisions. These include shifts in savings and loans, liquidity trends, and inflationary pressures.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="stat-card">
+                    <h3 id="doublePlungeTitle" class="sub-title text-center">Household Finances "Double Plunge" (May 2024, as per source [1])</h3>
+                    <div class="flex justify-around mt-4">
+                        <div class="text-center">
+                            <p id="depositsDecreasedBy" class="text-slate-600">Deposits Decreased By:</p>
+                            <p class="text-3xl font-bold" style="color: #FF69B4;">1.39 Trillion RMB</p>
+                        </div>
+                        <div class="text-center">
+                            <p id="loansShrankBy" class="text-slate-600">Loans Shrank By:</p>
+                            <p class="text-3xl font-bold" style="color: #FF69B4;">&gt;500 Billion RMB</p>
+                        </div>
+                    </div>
+                    <p id="doublePlungePara" class="content-text mt-4">This reported simultaneous drop in household deposits and loans, despite low interest rates, signals active deleveraging and cautious financial behavior.</p>
+                </div>
+
+                <div class="stat-card">
+                    <h3 id="m2m1GapTitle" class="sub-title text-center">M2-M1 "Scissors Gap" (April data, as per source [1])
+                        <button class="learn-more-button" onclick="showTermExplanation('M2-M1 Scissors Gap')" id="learnMoreM2M1">Learn More ✨</button>
+                    </h3>
+                    <div class="chart-container" style="height: 250px; max-height: 250px;">
+                        <canvas id="m2m1GapChart"></canvas>
+                    </div>
+                    <p id="m2m1GapPara" class="content-text mt-4">The M2-M1 growth gap widened to 6.5% (M2 +8.0%, M1 +1.5% YoY for April 2025 based on broader analysis), suggesting liquidity injected by the central bank may be "idling" in the financial system rather than flowing robustly into the real economy or to households and small businesses. This indicates weak transactional demand.</p>
+                </div>
+
+                <div class="stat-card md:col-span-2">
+                     <h3 id="deflationaryPressuresTitle" class="sub-title text-center">Deflationary Pressures & Consumer Behavior
+                        <button class="learn-more-button" onclick="showTermExplanation('CPI and Deflationary Pressures')" id="learnMoreCPI">Learn More ✨</button>
+                     </h3>
+                    <div class="text-center">
+                        <p id="cpiYoYTitle" class="sub-title">CPI YoY (April data, as per source [1]):</p>
+                        <p class="stat-number" style="font-size: 2.5rem;">-0.1%</p>
+                    </div>
+                    <p id="deflationaryPressuresPara" class="content-text mt-2">A reported 0.1% year-on-year decline in the Consumer Price Index for April (consistent with broader analysis for April 2025) reflects deflationary pressures. This can make holding cash seem more attractive as purchasing power appears to increase, but it also signals weak demand and can lead consumers to postpone purchases, further impacting economic activity.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <h2 id="govtStrategyTitle" class="section-title">Government's Dual Strategy</h2>
+            <p id="govtStrategyIntro" class="content-text text-center mb-6">The government is employing a two-pronged approach: stimulating the economy through significant spending, primarily on infrastructure, while also emphasizing fiscal discipline within official bodies.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="stat-card">
+                    <h3 id="fiscalStimulusTitle" class="sub-title text-center">Fiscal Stimulus: Bond Issuance</h3>
+                     <div class="text-center mt-4">
+                        <p id="bondIssuanceLabel" class="text-slate-600">Govt. Bond Issuance (First 4 months of year, as per source [1]):</p>
+                        <p class="text-3xl font-bold" style="color: #FF8C00;">5.3 Trillion RMB</p>
+                        <p id="bondIssuanceAvg" class="text-slate-500 text-sm">(Averaging 66.5 Billion RMB per working day)</p>
+                    </div>
+                    <p id="fiscalStimulusPara" class="content-text mt-4">This massive bond issuance is funding extensive infrastructure projects. However, concerns are raised in the source material about the actual employment benefits and overall economic efficiency, suggesting much of it might result in temporary, low-wage jobs (e.g., repetitive road repairs) that don't significantly boost household savings or consumption.</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="austerityTitle" class="sub-title text-center">Simultaneous Call for Austerity</h3>
+                    <div class="text-center mt-4">
+                        <span class="text-5xl">⚖️</span>
+                    </div>
+                    <p id="austerityPara" class="content-text mt-4">Around May 19th (as per source [1]), new regulations mandated fiscal austerity for party and government officials, urging them to "tighten their belts." This is interpreted as an effort to ensure centrally allocated funds are used for genuine economic stimulus rather than being squandered locally, and to manage rising fiscal pressures on government finances.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <h2 id="laborMarketTitle" class="section-title">Labor Market & Consumer Confidence</h2>
+            <p id="laborMarketIntro" class="content-text text-center mb-6">The employment situation and overall enterprise confidence are critical factors influencing household financial well-being and spending decisions. Weakness in these areas contributes to cautious consumer behavior.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="stat-card">
+                    <h3 id="flexEmploymentTitle" class="sub-title text-center">Flexible Employment Landscape</h3>
+                    <div class="chart-container" style="height: 280px; max-height: 280px;">
+                        <canvas id="flexibleEmploymentChart"></canvas>
+                    </div>
+                    <p id="flexEmploymentPara" class="content-text mt-4">The source material highlights an increasing proportion of flexible workers (15.2%), who often face declining incomes and less job security. This trend contributes to household financial anxiety.</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="savingsConfidenceTitle" class="sub-title text-center">Household Savings & Confidence</h3>
+                     <div class="text-center mt-4">
+                        <p id="avgSavingsLabel" class="text-slate-600">Average Savings for 98% of Ordinary People (as per source [1]):</p>
+                        <p class="text-3xl font-bold" style="color: #008080;">6,500 Yuan</p>
+                    </div>
+                    <p id="savingsConfidencePara" class="content-text mt-4">This figure is described as meager and often only sufficient for emergencies, reflecting low consumer confidence and limited financial buffers for a large segment of the population. Weak enterprise confidence further compounds these concerns.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <h2 id="defensiveWealthTitle" class="section-title">Shift to "Defensive Wealth Management"</h2>
+            <p id="defensiveWealthIntro" class="content-text text-center mb-6">In response to economic uncertainties, household funds are reportedly shifting towards lower-risk assets and more conservative investment strategies.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="stat-card">
+                    <h3 id="wmpGrowthTitleText" class="sub-title text-center">Growth in Bank Wealth Management Products (WMPs)</h3>
+                    <div class="chart-container" style="height: 280px; max-height: 280px;">
+                        <canvas id="wmpGrowthChart"></canvas>
+                    </div>
+                    <p id="wmpGrowthPara" class="content-text mt-4">Bank WMPs reportedly rose by 2.1 trillion RMB to 31.3 trillion RMB by end of May (YoY growth of 7.35%, as per source [1]), indicating a preference for these, likely lower-risk, products. Money Market Funds and Bond Repos are also cited as "new favorites."</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="savingPreferenceTitle" class="sub-title text-center">Preference for Saving Over Borrowing</h3>
+                    <div class="text-center mt-4">
+                        <p id="depositLoanRatioLabel" class="text-slate-600">Household Deposit-to-Loan Ratio (First 4 months of year, as per source [1]):</p>
+                        <p class="text-3xl font-bold" style="color: #FFD700; text-shadow: 1px 1px #A0522D;">15.1</p>
+                    </div>
+                    <p id="savingPreferencePara" class="content-text mt-4">This extraordinarily high ratio starkly contrasts with typical levels, indicating a strong preference for saving over borrowing, reinforcing the defensive stance of households.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <h2 id="investmentStrategyTitle" class="section-title">Simplified Investment Strategy Path</h2>
+            <p id="investmentStrategyIntro" class="content-text text-center mb-6">Navigating personal finances in this climate requires a thoughtful approach. Here’s a simplified representation of key considerations for individuals, emphasizing caution and foundational steps.</p>
+            <div class="stat-card md:col-span-2">
+                <div id="flowchartStepStart" class="flowchart-step">Start: Assess Financial Situation & Goals</div>
+                <div class="flowchart-arrow">↓</div>
+                <div id="flowchartStep1" class="flowchart-step">1. Build/Maintain Emergency Fund (3-6 months expenses in liquid, safe assets)</div>
+                <div class="flowchart-arrow">↓</div>
+                <div id="flowchartStep2" class="flowchart-step">2. Manage High-Interest Debt (Prioritize repayment)</div>
+                <div class="flowchart-arrow">↓</div>
+                <div id="flowchartStep3" class="flowchart-step">3. Consider Low-Risk Options (e.g., MMFs, Govt. Bonds, some WMPs after due diligence)</div>
+                <div class="flowchart-arrow">↓</div>
+                <div class="flex flex-col sm:flex-row justify-around">
+                    <div class="flex flex-col items-center w-full sm:w-auto">
+                        <div id="flowchartStep4a" class="flowchart-step mt-2 sm:mt-0">4a. Medium-Risk (If aligned with risk tolerance/horizon - e.g., Balanced Funds, Corp Bonds)</div>
+                    </div>
+                    <div class="flowchart-arrow sm:hidden">↓</div>
+                     <div class="flex flex-col items-center w-full sm:w-auto">
+                        <div id="flowchartStep4b" class="flowchart-step mt-2 sm:mt-0">4b. Higher-Risk (With caution, long-term view - e.g., Stocks, Equity ETFs)</div>
+                    </div>
+                </div>
+                 <div class="flowchart-arrow">↓</div>
+                <div id="flowchartStepOngoing" class="flowchart-step">Ongoing: Diversify, Stay Informed, Seek Professional Advice if Needed</div>
+                <p id="investmentStrategyDisclaimer" class="content-text mt-4">This is a general guide. Individual strategies must be tailored to personal circumstances, risk tolerance, and investment horizon. The current environment suggests a strong emphasis on capital preservation and cautious growth.</p>
+            
+                <div class="mt-8 pt-6 border-t border-slate-300">
+                    <h3 id="aiPointersTitle" class="sub-title text-center">✨ Get AI-Powered Pointers & Risk Insights (Illustrative)</h3>
+                    <p id="aiPointersIntro" class="content-text text-center text-sm text-slate-500 mb-4">Select your general preferences below for illustrative pointers and associated risk considerations. This is NOT financial advice.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="riskTolerance" id="riskToleranceLabel" class="block text-sm font-medium text-slate-700 mb-1">Risk Tolerance:</label>
+                            <select id="riskTolerance" class="w-full p-2 border border-slate-300 rounded-md shadow-sm focus:ring-pink-500 focus:border-pink-500">
+                                <option id="riskLow" value="Low">Low</option>
+                                <option id="riskMedium" value="Medium" selected>Medium</option>
+                                <option id="riskHigh" value="High">High</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="investmentHorizon" id="investmentHorizonLabel" class="block text-sm font-medium text-slate-700 mb-1">Investment Horizon:</label>
+                            <select id="investmentHorizon" class="w-full p-2 border border-slate-300 rounded-md shadow-sm focus:ring-pink-500 focus:border-pink-500">
+                                <option id="horizonShort" value="Short-term (1-3 years)">Short-term (1-3 years)</option>
+                                <option id="horizonMedium" value="Medium-term (3-7 years)" selected>Medium-term (3-7 years)</option>
+                                <option id="horizonLong" value="Long-term (7+ years)">Long-term (7+ years)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="text-center mb-4">
+                        <button id="generatePointersButton" class="gemini-button">Generate Pointers & Risks ✨</button>
+                    </div>
+                    <div id="geminiPointersResult" class="p-4 bg-pink-50 border border-pink-200 rounded-md min-h-[150px] content-text">
+                        <span id="geminiPointersPlaceholder">Your personalized pointers and risk insights will appear here...</span>
+                    </div>
+                     <p id="aiDisclaimer" class="content-text text-center text-xs text-slate-400 mt-2">AI-generated content can be inaccurate or incomplete. Always do your own research and consult a financial advisor.</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="mb-12">
+            <h2 id="aiOutlookTitle" class="section-title">✨ AI Economic Outlook Summary</h2>
+            <div class="stat-card md:col-span-2">
+                <p id="aiOutlookIntro" class="content-text text-center mb-4">Get a concise AI-generated summary of the current economic outlook for Chinese households based on the themes presented in this infographic. This is for informational purposes only.</p>
+                <div class="text-center mb-4">
+                    <button id="generateOutlookButton" class="gemini-button">Get AI Outlook Summary ✨</button>
+                </div>
+                <div id="geminiOutlookResult" class="p-4 bg-teal-50 border border-teal-200 rounded-md min-h-[100px] content-text">
+                    <span id="geminiOutlookPlaceholder">The AI-generated economic outlook summary will appear here...</span>
+                </div>
+                <p id="aiOutlookDisclaimer" class="content-text text-center text-xs text-slate-400 mt-2">AI-generated content can be inaccurate or incomplete. Always do your own research.</p>
+            </div>
+        </section>
+
+        <section class="mb-8">
+            <h2 id="conclusionTitle" class="section-title">Navigating the Path Ahead</h2>
+            <div class="stat-card md:col-span-2">
+                <p id="conclusionPara1" class="content-text">The Chinese economy is navigating a period of adjustment, with household financial behaviors reflecting significant caution. Deleveraging, increased precautionary savings, and a shift towards defensive investments are prominent trends stemming from concerns about income stability, the property market, and broader economic uncertainties, exacerbated by deflationary pressures.</p>
+                <p id="conclusionPara2" class="content-text">While government stimulus aims to invigorate growth, its direct impact on household confidence and spending remains a key area to watch. For individuals, a prudent, diversified, and informed approach to personal finance is more critical than ever. Strategies should focus on building resilience, managing debt, and aligning investments with long-term goals and risk tolerance in this evolving landscape.</p>
+                <p id="conclusionPara3" class="content-text">Ultimately, fostering sustainable recovery will likely require policies that not only support aggregate growth but also directly address household income security and bolster consumer confidence, encouraging a more balanced pattern of domestic demand.</p>
+            </div>
+        </section>
+
+        <footer class="text-center text-sm text-slate-500 mt-12 py-4 border-t border-slate-300">
+            <p id="footerDisclaimer1">Data and insights synthesized from "Navigating China's Economic Currents: Household Finances and Investment Strategies" report, based on analysis of "b站铁锤老中经济.txt" and other economic indicators (as of May 2025 context). This infographic is for illustrative purposes. Always consult with qualified financial professionals for investment advice.</p>
+            <p id="footerDisclaimer2">Chart.js and Tailwind CSS used for generation. NO SVG graphics or Mermaid JS were used. Enhanced with Gemini API features for illustrative purposes.</p>
+        </footer>
+    </div>
+
+    <div id="termModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <h3 id="modalTitleText" class="sub-title text-center mb-3">Term Explanation</h3>
+            <div id="modalBody" class="content-text"></div>
+            <div id="modalLoading" class="loading-spinner" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        let m2m1GapChartInstance, flexibleEmploymentChartInstance, wmpGrowthChartInstance;
+
+        const translations = {
+            en: {
+                pageTitle: "Infographic: China's Economic Currents - A Household Perspective",
+                mainHeader: "Navigating China's Economic Currents",
+                subHeader: "A Household Perspective on Financial Trends & Market Shifts",
+                householdSqueezeTitle: "The Household Squeeze",
+                householdSqueezePara1: "Recent analyses, including insights from the \"b站铁锤老中经济.txt\" source, paint a picture of significant financial pressure on Chinese households. Many are actively trying to reduce their debt (\"deleveraging\") amidst economic uncertainties and a shifting property market. This cautious behavior is a key theme shaping current economic trends.",
+                householdDebtToIncomeTitle: "Perceived Household Debt-to-Income Ratio:",
+                householdDebtToIncomePara: "This striking figure, highlighted in the source material, suggests that for every 100 yuan earned, 144 yuan are owed, pushing households into an \"asset-liability sheet repair mode.\" While the exact methodology for this specific ratio needs context, it reflects a strong sentiment of a heavy debt burden.",
+                indicatorsTitle: "Economic Indicators & Household Reactions",
+                indicatorsIntro: "Several key economic indicators reflect the current climate and are influencing household financial decisions. These include shifts in savings and loans, liquidity trends, and inflationary pressures.",
+                doublePlungeTitle: "Household Finances \"Double Plunge\" (May 2024, as per source [1])",
+                depositsDecreasedBy: "Deposits Decreased By:",
+                loansShrankBy: "Loans Shrank By:",
+                doublePlungePara: "This reported simultaneous drop in household deposits and loans, despite low interest rates, signals active deleveraging and cautious financial behavior.",
+                m2m1GapTitle: "M2-M1 \"Scissors Gap\" (April data, as per source [1])",
+                learnMoreM2M1: "Learn More ✨",
+                m2m1GapPara: "The M2-M1 growth gap widened to 6.5% (M2 +8.0%, M1 +1.5% YoY for April 2025 based on broader analysis), suggesting liquidity injected by the central bank may be \"idling\" in the financial system rather than flowing robustly into the real economy or to households and small businesses. This indicates weak transactional demand.",
+                deflationaryPressuresTitle: "Deflationary Pressures & Consumer Behavior",
+                learnMoreCPI: "Learn More ✨",
+                cpiYoYTitle: "CPI YoY (April data, as per source [1]):",
+                deflationaryPressuresPara: "A reported 0.1% year-on-year decline in the Consumer Price Index for April (consistent with broader analysis for April 2025) reflects deflationary pressures. This can make holding cash seem more attractive as purchasing power appears to increase, but it also signals weak demand and can lead consumers to postpone purchases, further impacting economic activity.",
+                govtStrategyTitle: "Government's Dual Strategy",
+                govtStrategyIntro: "The government is employing a two-pronged approach: stimulating the economy through significant spending, primarily on infrastructure, while also emphasizing fiscal discipline within official bodies.",
+                fiscalStimulusTitle: "Fiscal Stimulus: Bond Issuance",
+                bondIssuanceLabel: "Govt. Bond Issuance (First 4 months of year, as per source [1]):",
+                bondIssuanceAvg: "(Averaging 66.5 Billion RMB per working day)",
+                fiscalStimulusPara: "This massive bond issuance is funding extensive infrastructure projects. However, concerns are raised in the source material about the actual employment benefits and overall economic efficiency, suggesting much of it might result in temporary, low-wage jobs (e.g., repetitive road repairs) that don't significantly boost household savings or consumption.",
+                austerityTitle: "Simultaneous Call for Austerity",
+                austerityPara: "Around May 19th (as per source [1]), new regulations mandated fiscal austerity for party and government officials, urging them to \"tighten their belts.\" This is interpreted as an effort to ensure centrally allocated funds are used for genuine economic stimulus rather than being squandered locally, and to manage rising fiscal pressures on government finances.",
+                laborMarketTitle: "Labor Market & Consumer Confidence",
+                laborMarketIntro: "The employment situation and overall enterprise confidence are critical factors influencing household financial well-being and spending decisions. Weakness in these areas contributes to cautious consumer behavior.",
+                flexEmploymentTitle: "Flexible Employment Landscape",
+                flexEmploymentPara: "The source material highlights an increasing proportion of flexible workers (15.2%), who often face declining incomes and less job security. This trend contributes to household financial anxiety.",
+                savingsConfidenceTitle: "Household Savings & Confidence",
+                avgSavingsLabel: "Average Savings for 98% of Ordinary People (as per source [1]):",
+                savingsConfidencePara: "This figure is described as meager and often only sufficient for emergencies, reflecting low consumer confidence and limited financial buffers for a large segment of the population. Weak enterprise confidence further compounds these concerns.",
+                defensiveWealthTitle: "Shift to \"Defensive Wealth Management\"",
+                defensiveWealthIntro: "In response to economic uncertainties, household funds are reportedly shifting towards lower-risk assets and more conservative investment strategies.",
+                wmpGrowthTitleText: "Growth in Bank Wealth Management Products (WMPs)",
+                wmpGrowthPara: "Bank WMPs reportedly rose by 2.1 trillion RMB to 31.3 trillion RMB by end of May (YoY growth of 7.35%, as per source [1]), indicating a preference for these, likely lower-risk, products. Money Market Funds and Bond Repos are also cited as \"new favorites.\"",
+                savingPreferenceTitle: "Preference for Saving Over Borrowing",
+                depositLoanRatioLabel: "Household Deposit-to-Loan Ratio (First 4 months of year, as per source [1]):",
+                savingPreferencePara: "This extraordinarily high ratio starkly contrasts with typical levels, indicating a strong preference for saving over borrowing, reinforcing the defensive stance of households.",
+                investmentStrategyTitle: "Simplified Investment Strategy Path",
+                investmentStrategyIntro: "Navigating personal finances in this climate requires a thoughtful approach. Here’s a simplified representation of key considerations for individuals, emphasizing caution and foundational steps.",
+                flowchartStepStart: "Start: Assess Financial Situation & Goals",
+                flowchartStep1: "1. Build/Maintain Emergency Fund (3-6 months expenses in liquid, safe assets)",
+                flowchartStep2: "2. Manage High-Interest Debt (Prioritize repayment)",
+                flowchartStep3: "3. Consider Low-Risk Options (e.g., MMFs, Govt. Bonds, some WMPs after due diligence)",
+                flowchartStep4a: "4a. Medium-Risk (If aligned with risk tolerance/horizon - e.g., Balanced Funds, Corp Bonds)",
+                flowchartStep4b: "4b. Higher-Risk (With caution, long-term view - e.g., Stocks, Equity ETFs)",
+                flowchartStepOngoing: "Ongoing: Diversify, Stay Informed, Seek Professional Advice if Needed",
+                investmentStrategyDisclaimer: "This is a general guide. Individual strategies must be tailored to personal circumstances, risk tolerance, and investment horizon. The current environment suggests a strong emphasis on capital preservation and cautious growth.",
+                aiPointersTitle: "✨ Get AI-Powered Pointers & Risk Insights (Illustrative)",
+                aiPointersIntro: "Select your general preferences below for illustrative pointers and associated risk considerations. This is NOT financial advice.",
+                riskToleranceLabel: "Risk Tolerance:",
+                riskLow: "Low",
+                riskMedium: "Medium",
+                riskHigh: "High",
+                investmentHorizonLabel: "Investment Horizon:",
+                horizonShort: "Short-term (1-3 years)",
+                horizonMedium: "Medium-term (3-7 years)",
+                horizonLong: "Long-term (7+ years)",
+                generatePointersButton: "Generate Pointers & Risks ✨",
+                geminiPointersPlaceholder: "Your personalized pointers and risk insights will appear here...",
+                aiDisclaimer: "AI-generated content can be inaccurate or incomplete. Always do your own research and consult a financial advisor.",
+                aiOutlookTitle: "✨ AI Economic Outlook Summary",
+                aiOutlookIntro: "Get a concise AI-generated summary of the current economic outlook for Chinese households based on the themes presented in this infographic. This is for informational purposes only.",
+                generateOutlookButton: "Get AI Outlook Summary ✨",
+                geminiOutlookPlaceholder: "The AI-generated economic outlook summary will appear here...",
+                aiOutlookDisclaimer: "AI-generated content can be inaccurate or incomplete. Always do your own research.",
+                conclusionTitle: "Navigating the Path Ahead",
+                conclusionPara1: "The Chinese economy is navigating a period of adjustment, with household financial behaviors reflecting significant caution. Deleveraging, increased precautionary savings, and a shift towards defensive investments are prominent trends stemming from concerns about income stability, the property market, and broader economic uncertainties, exacerbated by deflationary pressures.",
+                conclusionPara2: "While government stimulus aims to invigorate growth, its direct impact on household confidence and spending remains a key area to watch. For individuals, a prudent, diversified, and informed approach to personal finance is more critical than ever. Strategies should focus on building resilience, managing debt, and aligning investments with long-term goals and risk tolerance in this evolving landscape.",
+                conclusionPara3: "Ultimately, fostering sustainable recovery will likely require policies that not only support aggregate growth but also directly address household income security and bolster consumer confidence, encouraging a more balanced pattern of domestic demand.",
+                footerDisclaimer1: "Data and insights synthesized from \"Navigating China's Economic Currents: Household Finances and Investment Strategies\" report, based on analysis of \"b站铁锤老中经济.txt\" and other economic indicators (as of May 2025 context). This infographic is for illustrative purposes. Always consult with qualified financial professionals for investment advice.",
+                footerDisclaimer2: "Chart.js and Tailwind CSS used for generation. NO SVG graphics or Mermaid JS were used. Enhanced with Gemini API features for illustrative purposes.",
+                modalTitleText: "Term Explanation",
+                modalLoadingText: "Loading explanation...",
+                generatingPointersText: "Generating pointers & risks...",
+                generatingOutlookText: "Generating outlook summary...",
+                m2m1ChartTitleText: "M2 vs M1 Growth (YoY April)",
+                m2m1LabelM2: "M2 Growth (YoY April)",
+                m2m1LabelM1: "M1 Growth (YoY April)",
+                m2m1YAxisLabel: "Growth Rate (%)",
+                flexEmploymentChartTitleText: "Flexible Employment Proportion (15.2%)",
+                flexEmploymentLabelFlexible: "Flexible Employment",
+                flexEmploymentLabelOther: "Other Employment",
+                wmpGrowthChartTitleText: "Growth in Bank WMPs (YoY +7.35%)",
+                wmpGrowthLabelPrevious: "Previous WMP Scale (Approx.)",
+                wmpGrowthLabelCurrent: "Current WMP Scale (End May)",
+                wmpGrowthYAxisLabel: "Scale (Trillion RMB)",
+            },
+            zh: {
+                pageTitle: "图表解读：中国经济潮流下的家庭视角",
+                mainHeader: "驾驭中国经济潮流",
+                subHeader: "家庭视角下的金融趋势与市场变化",
+                householdSqueezeTitle: "家庭财务压力",
+                householdSqueezePara1: "近期分析（包括来自“b站铁锤老中经济.txt”来源的洞察）描绘了中国家庭面临的巨大财务压力。在经济不确定性和房地产市场变化的背景下，许多家庭正积极尝试减少债务（“去杠杆化”）。这种谨慎行为是影响当前经济趋势的一个关键主题。",
+                householdDebtToIncomeTitle: "感知到的家庭债务收入比：",
+                householdDebtToIncomePara: "源材料中强调的这一惊人数字表明，每赚取100元，就有144元用于偿债，将家庭推向“资产负债表修复模式”。虽然此特定比率的确切计算方法需要具体背景，但它反映了沉重债务负担的强烈感受。",
+                indicatorsTitle: "经济指标与家庭反应",
+                indicatorsIntro: "若干关键经济指标反映了当前环境，并正在影响家庭的财务决策。这些包括储蓄和贷款的变化、流动性趋势以及通货膨胀压力。",
+                doublePlungeTitle: "家庭财务“双降”（2024年5月，根据来源[1]）",
+                depositsDecreasedBy: "存款减少：",
+                loansShrankBy: "贷款缩水：",
+                doublePlungePara: "据报道，尽管利率较低，但家庭存款和贷款同时下降，这标志着积极的去杠杆化和谨慎的财务行为。",
+                m2m1GapTitle: "M2-M1“剪刀差”（4月数据，根据来源[1]）",
+                learnMoreM2M1: "了解更多 ✨",
+                m2m1GapPara: "M2-M1增长差距扩大至6.5%（根据更广泛的分析，2025年4月M2同比增长8.0%，M1同比增长1.5%），表明央行注入的流动性可能在金融体系中“空转”，而未稳健地流入实体经济或家庭和小型企业。这表明交易需求疲软。",
+                deflationaryPressuresTitle: "通缩压力与消费者行为",
+                learnMoreCPI: "了解更多 ✨",
+                cpiYoYTitle: "CPI同比（4月数据，根据来源[1]）：",
+                deflationaryPressuresPara: "据报道，4月份消费者价格指数同比下降0.1%（与2025年4月更广泛的分析一致），反映了通缩压力。这可能使持有现金看起来更具吸引力，因为购买力似乎在增加，但也表明需求疲软，并可能导致消费者推迟购买，进一步影响经济活动。",
+                govtStrategyTitle: "政府的双重策略",
+                govtStrategyIntro: "政府正在采取双管齐下的方法：主要通过基础设施的大量支出来刺激经济，同时强调官方机构内部的财政纪律。",
+                fiscalStimulusTitle: "财政刺激：债券发行",
+                bondIssuanceLabel: "政府债券发行（年初四个月，根据来源[1]）：",
+                bondIssuanceAvg: "（平均每个工作日665亿人民币）",
+                fiscalStimulusPara: "这种大规模的债券发行正在为广泛的基础设施项目提供资金。然而，源材料对这些支出的实际就业效益和整体经济效率提出了担忧，认为其中大部分可能导致临时的低薪工作（例如，重复的道路维修），这些工作并不能显著增加家庭储蓄或消费。",
+                austerityTitle: "同时号召厉行节约",
+                austerityPara: "大约在5月19日（根据来源[1]），新规定要求党政机关厉行财政节约，敦促官员“勒紧裤腰带”。这被解读为努力确保中央分配的资金用于真正的经济刺激，而不是被地方挥霍，并管理政府财政日益增长的财政压力。",
+                laborMarketTitle: "劳动力市场与消费者信心",
+                laborMarketIntro: "就业形势和整体企业信心是影响家庭财务福祉和支出决策的关键因素。这些领域的疲软导致了谨慎的消费者行为。",
+                flexEmploymentTitle: "灵活用工状况",
+                flexEmploymentPara: "源材料强调，灵活用工的比例（15.2%）正在增加，他们往往面临收入下降和工作保障减少的问题。这一趋势加剧了家庭的财务焦虑。",
+                savingsConfidenceTitle: "家庭储蓄与信心",
+                avgSavingsLabel: "98%普通人的平均储蓄（根据来源[1]）：",
+                savingsConfidencePara: "这一数字被描述为微薄，通常仅够应急之用，反映了消费者信心低下以及大部分人口财务缓冲有限。企业信心疲软进一步加剧了这些担忧。",
+                defensiveWealthTitle: "转向“防御性理财”",
+                defensiveWealthIntro: "为应对经济不确定性，据报道家庭资金正转向风险较低的资产和更保守的投资策略。",
+                wmpGrowthTitleText: "银行理财产品（WMP）增长",
+                wmpGrowthPara: "据报道，银行理财产品规模在5月底增加了2.1万亿人民币，达到31.3万亿人民币（同比增长7.35%，根据来源[1]），表明人们偏爱这些风险可能较低的产品。货币市场基金和债券回购也被认为是“新宠”。",
+                savingPreferenceTitle: "储蓄优于借贷的偏好",
+                depositLoanRatioLabel: "家庭存贷比（年初四个月，根据来源[1]）：",
+                savingPreferencePara: "这一极高的比率与通常水平形成鲜明对比，表明强烈的储蓄而非借贷偏好，强化了家庭的防御姿态。",
+                investmentStrategyTitle: "简化投资策略路径",
+                investmentStrategyIntro: "在这种环境下管理个人财务需要深思熟虑的方法。以下是个人关键考虑因素的简化表述，强调谨慎和基础步骤。",
+                flowchartStepStart: "开始：评估财务状况与目标",
+                flowchartStep1: "1. 建立/维持应急基金（3-6个月生活费，存于流动性强的安全资产）",
+                flowchartStep2: "2. 管理高息债务（优先偿还）",
+                flowchartStep3: "3. 考虑低风险选项（例如货币基金、政府债券、经审慎调查的部分理财产品）",
+                flowchartStep4a: "4a. 中等风险（若符合风险承受能力/投资期限 - 例如平衡基金、公司债券）",
+                flowchartStep4b: "4b. 较高风险（谨慎对待，着眼长远 - 例如股票、股票ETF）",
+                flowchartStepOngoing: "持续进行：多元化投资、保持信息灵通、必要时寻求专业建议",
+                investmentStrategyDisclaimer: "这是一般性指南。个人策略必须根据个人情况、风险承受能力和投资期限量身定制。当前环境表明应高度重视资本保值和谨慎增长。",
+                aiPointersTitle: "✨ 获取AI赋能提示与风险洞察（说明性）",
+                aiPointersIntro: "请在下方选择您的一般偏好，以便根据上述策略路径获得说明性提示及相关风险考量。这不是财务建议。",
+                riskToleranceLabel: "风险承受能力：",
+                riskLow: "低",
+                riskMedium: "中",
+                riskHigh: "高",
+                investmentHorizonLabel: "投资期限：",
+                horizonShort: "短期（1-3年）",
+                horizonMedium: "中期（3-7年）",
+                horizonLong: "长期（7年以上）",
+                generatePointersButton: "生成提示与风险 ✨",
+                geminiPointersPlaceholder: "您的个性化提示与风险洞察将显示在此处...",
+                aiDisclaimer: "AI生成的内容可能不准确或不完整。请务必自行研究并咨询财务顾问。",
+                aiOutlookTitle: "✨ AI经济前景摘要",
+                aiOutlookIntro: "根据此信息图表中呈现的主题，获取AI生成的关于中国家庭当前经济前景的简明摘要。此内容仅供参考。",
+                generateOutlookButton: "获取AI前景摘要 ✨",
+                geminiOutlookPlaceholder: "AI生成的经济前景摘要将显示在此处...",
+                aiOutlookDisclaimer: "AI生成的内容可能不准确或不完整。请务必自行研究。",
+                conclusionTitle: "展望未来之路",
+                conclusionPara1: "中国经济正经历调整期，家庭财务行为反映出显著的谨慎态度。去杠杆化、增加预防性储蓄以及转向防御性投资是主要趋势，这些趋势源于对收入稳定、房地产市场和更广泛经济不确定性的担忧，并因通缩压力而加剧。",
+                conclusionPara2: "虽然政府刺激措施旨在振兴增长，但其对家庭信心和支出的直接影响仍是值得关注的关键领域。对个人而言，审慎、多元化和明智的个人理财方法比以往任何时候都更为重要。策略应侧重于建立韧性、管理债务，并使投资与长期目标和风险承受能力在这一不断变化的环境中保持一致。",
+                conclusionPara3: "最终，促进可持续复苏可能需要不仅支持总体增长，而且直接解决家庭收入保障和增强消费者信心的政策，从而鼓励更平衡的国内需求模式。",
+                footerDisclaimer1: "数据和见解综合自《驾驭中国经济潮流：家庭财务与投资策略》报告，基于对“b站铁锤老中经济.txt”及其他经济指标（截至2025年5月）的分析。此信息图表仅供说明之用。投资建议请务必咨询合格的金融专业人士。",
+                footerDisclaimer2: "使用Chart.js和Tailwind CSS生成。未使用SVG图形或Mermaid JS。通过Gemini API功能增强以供说明。",
+                modalTitleText: "术语解释",
+                modalLoadingText: "正在加载解释...",
+                generatingPointersText: "正在生成提示与风险...",
+                generatingOutlookText: "正在生成前景摘要...",
+                m2m1ChartTitleText: "M2与M1同比增长（四月）",
+                m2m1LabelM2: "M2同比增长（四月）",
+                m2m1LabelM1: "M1同比增长（四月）",
+                m2m1YAxisLabel: "增长率 (%)",
+                flexEmploymentChartTitleText: "灵活用工占比 (15.2%)",
+                flexEmploymentLabelFlexible: "灵活用工",
+                flexEmploymentLabelOther: "其他就业",
+                wmpGrowthChartTitleText: "银行理财产品增长 (同比增长+7.35%)",
+                wmpGrowthLabelPrevious: "先前理财规模 (大约)",
+                wmpGrowthLabelCurrent: "当前理财规模 (五月底)",
+                wmpGrowthYAxisLabel: "规模 (万亿人民币)",
+            }
+        };
+        let currentLanguage = localStorage.getItem('infographicLanguage') || 'en';
+        let currentTheme = localStorage.getItem('infographicTheme') || 'system';
+
+        const apiKey = ""; 
+
+        function applyTranslations() {
+            const lang = translations[currentLanguage];
+            if (!lang) return;
+
+            document.documentElement.lang = currentLanguage;
+            Object.keys(lang).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA' || element.tagName === 'SELECT') {
+                        if (element.placeholder) element.placeholder = lang[key];
+                        else if (element.tagName === 'SELECT') { /* Special handling for select options if needed */ }
+                        else element.value = lang[key]; 
+                    } else {
+                        element.innerHTML = lang[key]; 
+                    }
+                }
+            });
+            document.getElementById('translateButton').textContent = currentLanguage === 'en' ? '文' : 'En';
+            
+            // Update chart texts
+            const chartTextColor = document.documentElement.classList.contains('dark') ? '#cbd5e1' : '#334155';
+            if (m2m1GapChartInstance) {
+                m2m1GapChartInstance.options.plugins.title.text = lang.m2m1ChartTitleText;
+                m2m1GapChartInstance.options.plugins.title.color = chartTextColor;
+                m2m1GapChartInstance.data.labels = [wrapLabel(lang.m2m1LabelM2, 16), wrapLabel(lang.m2m1LabelM1, 16)];
+                m2m1GapChartInstance.options.scales.y.title.text = lang.m2m1YAxisLabel;
+                m2m1GapChartInstance.options.scales.y.title.color = chartTextColor;
+                m2m1GapChartInstance.options.scales.y.ticks.color = chartTextColor;
+                m2m1GapChartInstance.options.scales.x.ticks.color = chartTextColor;
+                m2m1GapChartInstance.update();
+            }
+            if (flexibleEmploymentChartInstance) {
+                flexibleEmploymentChartInstance.options.plugins.title.text = lang.flexEmploymentChartTitleText;
+                flexibleEmploymentChartInstance.options.plugins.title.color = chartTextColor;
+                flexibleEmploymentChartInstance.data.labels = [wrapLabel(lang.flexEmploymentLabelFlexible, 16), wrapLabel(lang.flexEmploymentLabelOther, 16)];
+                flexibleEmploymentChartInstance.options.plugins.legend.labels.color = chartTextColor;
+                flexibleEmploymentChartInstance.update();
+            }
+            if (wmpGrowthChartInstance) {
+                wmpGrowthChartInstance.options.plugins.title.text = lang.wmpGrowthChartTitleText;
+                wmpGrowthChartInstance.options.plugins.title.color = chartTextColor;
+                wmpGrowthChartInstance.data.labels = [wrapLabel(lang.wmpGrowthLabelPrevious, 16), wrapLabel(lang.wmpGrowthLabelCurrent, 16)];
+                wmpGrowthChartInstance.options.scales.y.title.text = lang.wmpGrowthYAxisLabel;
+                wmpGrowthChartInstance.options.scales.y.title.color = chartTextColor;
+                wmpGrowthChartInstance.options.scales.y.ticks.color = chartTextColor;
+                wmpGrowthChartInstance.options.scales.x.ticks.color = chartTextColor;
+                wmpGrowthChartInstance.update();
+            }
+        }
+
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'en' ? 'zh' : 'en';
+            localStorage.setItem('infographicLanguage', currentLanguage);
+            applyTranslations();
+        }
+        
+        function applyTheme(theme) {
+            localStorage.setItem('infographicTheme', theme);
+            currentTheme = theme;
+            const htmlEl = document.documentElement;
+            if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                htmlEl.classList.add('dark');
+            } else {
+                htmlEl.classList.remove('dark');
+            }
+            updateThemeButtonStates();
+            applyTranslations(); // Re-apply translations to update chart colors for theme change
+        }
+
+        function updateThemeButtonStates() {
+            document.getElementById('themeLight').classList.toggle('active', currentTheme === 'light' && !document.documentElement.classList.contains('dark'));
+            document.getElementById('themeDark').classList.toggle('active', currentTheme === 'dark' || (currentTheme === 'system' && document.documentElement.classList.contains('dark')));
+            document.getElementById('themeSystem').classList.toggle('active', currentTheme === 'system');
+        }
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('translateButton').addEventListener('click', toggleLanguage);
+            document.getElementById('themeLight').addEventListener('click', () => applyTheme('light'));
+            document.getElementById('themeDark').addEventListener('click', () => applyTheme('dark'));
+            document.getElementById('themeSystem').addEventListener('click', () => applyTheme('system'));
+            
+            const generateOutlookButton = document.getElementById('generateOutlookButton');
+            if(generateOutlookButton) {
+                generateOutlookButton.addEventListener('click', getAIEconomicOutlook);
+            }
+
+
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+                if (currentTheme === 'system') {
+                    applyTheme('system'); 
+                }
+            });
+            
+            createCharts(); 
+            applyTheme(currentTheme); 
+            // applyTranslations(); // applyTranslations is called within applyTheme now
+        });
+
+        const energeticPlayfulPalette = {
+            orange: '#FF8C00',
+            yellow: '#FFD700',
+            teal: '#008080',
+            pink: '#FF69B4',
+            lightBlue: '#ADD8E6',
+            darkGray: '#334155', 
+            lightGray: '#cbd5e1' 
+        };
+
+
+        function wrapLabel(str, maxWidth) { 
+            if (!str || typeof str !== 'string') return ''; // Ensure str is a string
+            if (str.length <= maxWidth) {
+                return str;
+            }
+            const words = str.split(' ');
+            let currentLine = '';
+            const lines = [];
+            for (const word of words) {
+                if ((currentLine + word).length > maxWidth && currentLine.length > 0) {
+                    lines.push(currentLine.trim());
+                    currentLine = '';
+                }
+                currentLine += word + ' ';
+            }
+            if (currentLine.trim().length > 0) {
+                lines.push(currentLine.trim());
+            }
+            return lines.length > 0 ? lines : [str]; 
+        }
+        const tooltipTitleCallback = function(tooltipItems) { 
+            const item = tooltipItems[0];
+            let label = item.chart.data.labels[item.dataIndex];
+            if (Array.isArray(label)) {
+              return label.join(' ');
+            } else {
+              return label;
+            }
+        };
+
+        function createCharts() {
+            const chartTextColor = document.documentElement.classList.contains('dark') ? energeticPlayfulPalette.lightGray : energeticPlayfulPalette.darkGray;
+
+            const m2m1Ctx = document.getElementById('m2m1GapChart').getContext('2d');
+            m2m1GapChartInstance = new Chart(m2m1Ctx, {
+                type: 'bar',
+                data: { 
+                    labels: [], // Will be populated by applyTranslations
+                    datasets: [{
+                        label: 'Growth Rate (%)', // This label is not directly visible due to legend:false
+                        data: [8.0, 1.5], 
+                        backgroundColor: [energeticPlayfulPalette.teal, energeticPlayfulPalette.lightBlue],
+                        borderColor: [energeticPlayfulPalette.teal, energeticPlayfulPalette.lightBlue],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { 
+                        y: { 
+                            beginAtZero: true, 
+                            title: { display: true, text: '', color: chartTextColor }, // Text set by translation
+                            ticks: { color: chartTextColor } 
+                        }, 
+                        x: { 
+                            grid: { display: false },
+                            ticks: { color: chartTextColor } 
+                        } 
+                    },
+                    plugins: { 
+                        legend: { display: false }, 
+                        title: { display: true, text: '', color: chartTextColor }, // Text set by translation
+                        tooltip: { callbacks: { title: tooltipTitleCallback } } 
+                    }
+                }
+            });
+
+            const flexEmpCtx = document.getElementById('flexibleEmploymentChart').getContext('2d');
+            flexibleEmploymentChartInstance = new Chart(flexEmpCtx, {
+                type: 'doughnut',
+                data: { 
+                    labels: [], // Will be populated by applyTranslations
+                    datasets: [{ 
+                        data: [15.2, 100 - 15.2], 
+                        backgroundColor: [energeticPlayfulPalette.pink, energeticPlayfulPalette.lightBlue], 
+                        borderColor: ['#FFFFFF'], 
+                        borderWidth: 2 
+                    }] 
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { position: 'bottom', labels: { color: chartTextColor } }, 
+                        title: { display: true, text: '', color: chartTextColor }, // Text set by translation
+                        tooltip: { callbacks: { title: tooltipTitleCallback } } 
+                    }
+                }
+            });
+
+            const wmpCtx = document.getElementById('wmpGrowthChart').getContext('2d');
+            wmpGrowthChartInstance = new Chart(wmpCtx, {
+                type: 'bar',
+                data: { 
+                    labels: [], // Will be populated by applyTranslations
+                    datasets: [{ 
+                        label: 'Wealth Management Products (Trillion RMB)', // Not visible
+                        data: [31.3 - 2.1, 31.3], 
+                        backgroundColor: [energeticPlayfulPalette.yellow, energeticPlayfulPalette.orange], 
+                        borderColor: [energeticPlayfulPalette.yellow, energeticPlayfulPalette.orange], 
+                        borderWidth: 1 
+                    }] 
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { 
+                        y: { 
+                            beginAtZero: false, 
+                            title: { display: true, text: '', color: chartTextColor }, // Text set by translation
+                            ticks: { color: chartTextColor } 
+                        }, 
+                        x: { 
+                            grid: { display: false },
+                            ticks: { color: chartTextColor }
+                        } 
+                    },
+                    plugins: { 
+                        legend: { display: false }, 
+                        title: { display: true, text: '', color: chartTextColor }, // Text set by translation
+                        tooltip: { callbacks: { title: tooltipTitleCallback } } 
+                    }
+                }
+            });
+        }
+
+
+        const geminiPointersResultDiv = document.getElementById('geminiPointersResult');
+        const generatePointersButton = document.getElementById('generatePointersButton');
+        const riskToleranceSelect = document.getElementById('riskTolerance');
+        const investmentHorizonSelect = document.getElementById('investmentHorizon');
+        const geminiOutlookResultDiv = document.getElementById('geminiOutlookResult');
+
+
+        const termModal = document.getElementById('termModal');
+        const modalTitleEl = document.getElementById('modalTitleText'); 
+        const modalBody = document.getElementById('modalBody');
+        const modalLoading = document.getElementById('modalLoading');
+
+        async function callGeminiAPI(prompt) {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+            const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    const errorData = await response.json(); console.error("Gemini API Error:", errorData);
+                    return `Error: ${errorData.error?.message || response.statusText}.`;
+                }
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts.length > 0) {
+                    return result.candidates[0].content.parts[0].text;
+                } else {
+                    console.error("Unexpected Gemini API response structure:", result);
+                    return "Error: Received an unexpected response from the AI.";
+                }
+            } catch (error) {
+                console.error("Fetch error:", error);
+                return "Error: Could not connect to the AI service.";
+            }
+        }
+
+        if (generatePointersButton) {
+            generatePointersButton.addEventListener('click', async () => {
+                const risk = riskToleranceSelect.value;
+                const horizon = investmentHorizonSelect.value;
+                const lang = translations[currentLanguage];
+                
+                geminiPointersResultDiv.innerHTML = `<div class="loading-spinner"></div> <p class="text-center">${lang.generatingPointersText || 'Generating pointers & risks...'}</p>`;
+                generatePointersButton.disabled = true;
+
+                const prompt = currentLanguage === 'zh' ? 
+                `您是一位乐于助人的助手，提供说明性的金融教育。
+                根据用户选择的风险承受能力为“${risk}”，投资期限为“${horizon}”，请提供一段简短的说明性段落（约3-5句话），说明这样的个人通常会如何处理以下投资策略步骤：
+                1. 应急基金, 2. 管理高息债务, 3. 低风险选项, 4. 中/高风险选项, 5. 持续多元化与学习。
+                然后，另起一段，简要说明与所选风险偏好（${risk}）相关的典型投资类型（例如，低风险对应MMFs/债券，高风险对应股票）的一般风险考虑（1-2句话）。
+                以这样的短语开头：“对于风险承受能力为[${risk}]且投资期限为[${horizon}]的人来说：”。
+                这仅用于教育目的，并非财务建议。不要给出具体的投资建议。
+                保持信息丰富和谨慎的语气。请用简体中文回答。` :
+                `You are a helpful assistant providing illustrative financial education.
+                Based on a user with a general risk tolerance of '${risk}' and an investment horizon of '${horizon}', provide a brief, illustrative paragraph (around 3-5 sentences) on how such an individual might generally approach the following investment strategy steps:
+                1. Emergency Fund, 2. Manage High-Interest Debt, 3. Low-Risk Options, 4. Medium/Higher-Risk options, 5. Ongoing Diversification & Learning.
+                Then, in a separate paragraph, briefly explain general risk considerations (1-2 sentences) for typical investment types associated with their chosen risk tolerance ('${risk}') (e.g., low risk implies MMFs/bonds, high risk implies stocks).
+                Start the first paragraph with a phrase like: "For someone with a ${risk} risk tolerance and a ${horizon} horizon:".
+                This is for educational purposes ONLY and is NOT financial advice. Do not give specific investment recommendations.
+                Keep the tone informative and cautious. Please respond in English.`;
+
+                const resultText = await callGeminiAPI(prompt);
+                geminiPointersResultDiv.innerHTML = resultText.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
+                generatePointersButton.disabled = false;
+            });
+        }
+        
+        async function getAIEconomicOutlook() {
+            const lang = translations[currentLanguage];
+            geminiOutlookResultDiv.innerHTML = `<div class="loading-spinner"></div> <p class="text-center">${lang.generatingOutlookText || 'Generating outlook summary...'}</p>`;
+            const generateOutlookButton = document.getElementById('generateOutlookButton');
+            if(generateOutlookButton) generateOutlookButton.disabled = true;
+
+            const promptContext = currentLanguage === 'zh' ?
+            `根据以下中国经济主题：家庭去杠杆化、谨慎消费、通货紧缩压力、政府通过基础设施支出和财政纪律双重策略进行刺激、以及劳动力市场挑战，为中国家庭生成一个关于当前经济前景的简明摘要（3-4句话）。重点关注对家庭财务决策的潜在影响。请用简体中文回答。` :
+            `Based on the following themes for the Chinese economy: household deleveraging, cautious spending, deflationary pressures, government stimulus via infrastructure spending and fiscal discipline (dual strategy), and labor market challenges, generate a concise summary (3-4 sentences) of the current economic outlook for Chinese households. Focus on potential implications for household financial decisions. Please respond in English.`;
+
+            const resultText = await callGeminiAPI(promptContext);
+            geminiOutlookResultDiv.innerHTML = resultText.replace(/\n/g, '<br>');
+            if(generateOutlookButton) generateOutlookButton.disabled = false;
+        }
+
+
+        async function showTermExplanation(termKey) {
+            const lang = translations[currentLanguage];
+            const termToExplain = currentLanguage === 'zh' ? 
+                (termKey === 'M2-M1 Scissors Gap' ? 'M2-M1剪刀差' : 'CPI与通缩压力') : termKey;
+
+            modalTitleEl.textContent = `${lang.modalTitleText || 'Term Explanation'}: ${termToExplain}`;
+            modalBody.innerHTML = ''; 
+            modalLoading.innerHTML = `<div class="loading-spinner"></div> <p class="text-center">${lang.modalLoadingText || 'Loading explanation...'}</p>`;
+            modalLoading.style.display = 'block';
+            termModal.style.display = 'block';
+
+            const prompt = currentLanguage === 'zh' ?
+            `请用简单易懂的语言（2-4句话）为普通大众解释经济术语“${termToExplain}”。同时，简要提及它通常的含义或它通常表明经济状况如何。请用简体中文回答。` :
+            `Explain the economic term "${termToExplain}" in simple, easy-to-understand language for a general audience (2-4 sentences). Also, briefly mention its typical implications or what it generally indicates about an economy. Please respond in English.`;
+            
+            const explanation = await callGeminiAPI(prompt);
+            modalBody.innerHTML = explanation.replace(/\n/g, '<br>');
+            modalLoading.style.display = 'none';
+        }
+
+        function closeModal() {
+            termModal.style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == termModal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
